@@ -164,16 +164,17 @@
             if (statusId) query.push(`orderStatusId=${encodeURIComponent(statusId)}`);
 
             const queryString = query.length ? `?${query.join('&')}` : '';
-            const container = $('#ordersContainer');
+            const $container = $('#ordersContainer');
 
             const spinner = $('#loadingSpinner');
+            
+            $container.find('table').addClass('opacity-50');
             spinner.show();
-            container.find('table').remove();
 
             api.get(`/orders${queryString}`)
                 .then(response => {
                     spinner.hide();
-                    container.html(response.data);
+                    $container.html(response.data);
                     $(".btn-view-details").off("click").on("click", handleOrderDetailsClick);
                     $(".btn-update-status").off("click").on("click", handleOrderUpdateStatus);
                 })

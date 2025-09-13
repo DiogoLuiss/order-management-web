@@ -151,27 +151,27 @@
             if (event && typeof event.preventDefault === 'function')
                 event.preventDefault();
 
-            const container = $('#productsContainer');
+            const $container = $('#productsContainer');
 
             const searchValue = $('#searchInput').val();
             const spinner = $('#loadingSpinner');
-
+            
+            $container.find('table').addClass('opacity-50');
             spinner.show();
-            container.find('table').remove();
 
             api.get(`/products?name=${searchValue}`)
                 .then(response => {
                     spinner.hide();
-                    container.html(response.data);
+                    $container.html(response.data);
 
-                    container.find('.btn-update').each(function () {
+                    $container.find('.btn-update').each(function () {
                         $(this).on('click', function () {
                             const productId = $(this).closest('tr').find('td').first().text().trim();
                             openUpdateProductModal(productId);
                         });
                     });
 
-                    container.find('.btn-delete').each(function () {
+                    $container.find('.btn-delete').each(function () {
                         $(this).on('click', function () {
                             const productId = $(this).data('id');
                             const nameProduct = $(this).data('name');

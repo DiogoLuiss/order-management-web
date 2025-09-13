@@ -139,8 +139,8 @@
             const $container = $('#clientesContainer');
             const spinner = $('#loadingSpinner');
 
+            $container.find('table').addClass('opacity-50');
             spinner.show();
-            $container.find('table').remove();
 
             api.get(`/clients?nameOrEmail=${searchValue}`)
                 .then(response => {

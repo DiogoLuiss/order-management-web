@@ -80,7 +80,15 @@
                         <input type="text" id="searchCustomer" class="form-control" placeholder="Buscar cliente..." />
                         <button class="btn btn-primary" type="submit">Buscar</button>
                     </form>
-                    <div id="clientListContainer"></div>
+                    <div id="clientListContainer">
+
+                        <div id="loadingSpinnerClients" class="text-center my-3" style="display:none;">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Carregando...</span>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
             </div>
         </div>
@@ -98,7 +106,14 @@
                         <input type="text" id="searchProduct" class="form-control" placeholder="Buscar produto..." />
                         <button class="btn btn-primary" type="submit">Buscar</button>
                     </form>
-                    <div id="productListContainer"></div>
+                    <div id="productListContainer">
+
+
+    <div class="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center bg-white bg-opacity-50" id="loadingSpinnerProducts" style="display:none;">
+        <div class="spinner-border text-primary" role="status"></div>
+    </div>
+
+                    </div>
                 </div>
             </div>
         </div>
@@ -122,10 +137,14 @@
         function fetchClients() {
             event.preventDefault();
             const searchValue = $("#searchCustomer").val();
+            const $container = $("#clientListContainer");
+            const $spinner = $('#loadingSpinnerClients');
 
+            $spinner.show();
+            $container.find('table').addClass('opacity-50');
             api.get(`/clients/simple?nameOrEmail=${searchValue}`)
                 .then(response => {
-                    const $container = $("#clientListContainer");
+                    $spinner.hide();
                     $container.html(response.data);
 
                     $($container).on("click", ".select-customer", function () {
@@ -150,11 +169,16 @@
 
         function fetchProducts() {
             event.preventDefault();
+            const $container = $("#productListContainer");
             const searchValue = $("#searchProduct").val();
+            const $spinner = $('#loadingSpinnerProducts');
+            
+            $container.find('table').addClass('opacity-50');
+            $spinner.show();
 
             api.get(`/products/simple?name=${searchValue}`)
                 .then(response => {
-                    const $container = $("#productListContainer");
+                    $spinner.hide();
                     $container.html(response.data);
                 })
                 .catch(error => {
