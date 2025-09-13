@@ -11,7 +11,11 @@
 </head>
 
 <body>
+
     <div id="navbar"></div>
+
+    <!-- #region Main App -->
+
     <div id="app" class="container-xxl mt-5">
 
         <div class="mt-5">
@@ -27,8 +31,7 @@
                         </div>
                     </form>
                 </div>
-
-                <div class="col-md-6 text-end ">
+                <div class="col-md-6 text-end">
                     <button class="btn btn-success btn-add-client" data-bs-toggle="modal" data-bs-target="#modalClient"
                         id="addClientButton">
                         Adicionar Cliente
@@ -37,10 +40,21 @@
             </div>
 
             <div class="table-responsive" id="clientesContainer">
+                <div id="loadingSpinner" class="text-center my-3" style="display:none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Carregando...</span>
+                    </div>
+                </div>
             </div>
+
         </div>
     </div>
 
+    <!-- #endregion Main App -->
+
+    <!-- #region Modals -->
+
+    <!-- Add/Edit Client Modal -->
     <div class="modal fade" id="modalClient" tabindex="-1" aria-labelledby="modalClientLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -52,24 +66,25 @@
                 <div class="modal-body">
                     <form id="formClient" novalidate>
                         <input type="hidden" id="clientId" value="">
-
                         <div class="mb-3">
                             <label for="name" class="form-label">Nome</label>
-                            <input type="text" class="form-control" id="name" placeholder="Digite o nome" required maxlength="255">
-                            <div class="invalid-feedback">O nome é obrigatório e deve ter no máximo 255 caracteres.</div>
+                            <input type="text" class="form-control" id="name" placeholder="Digite o nome" required
+                                maxlength="255">
+                            <div class="invalid-feedback">O nome é obrigatório e deve ter no máximo 255 caracteres.
+                            </div>
                         </div>
                         <div class="mb-3">
-                            <label for="email" class="form-label re">Email</label>
-                            <input type="email" inputmode="email" class="form-control" id="email" placeholder="Digite o email" required maxlength="255">
-                            <div class="invalid-feedback">O email é obrigatório. Exemplo: abc@example.com e ter no maximo 255 caracteres.</div>
-
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" inputmode="email" class="form-control" id="email"
+                                placeholder="Digite o email" required maxlength="255">
+                            <div class="invalid-feedback">O email é obrigatório. Exemplo: abc@example.com e ter no
+                                máximo 255 caracteres.</div>
                         </div>
                         <div class="mb-3">
                             <label for="phone" class="form-label">Telefone</label>
-                            <input type="tel" class="form-control" id="phone" 
-                                placeholder="(11) 99999-9999" required maxlength="15" minlength="14" inputmode="tel">
+                            <input type="tel" class="form-control" id="phone" placeholder="(11) 99999-9999" required
+                                maxlength="15" minlength="14" inputmode="tel">
                             <div class="invalid-feedback">O telefone é obrigatório.</div>
-
                         </div>
                         <div class="d-flex justify-content-end">
                             <button type="button" class="btn btn-outline-danger me-2"
@@ -82,6 +97,7 @@
         </div>
     </div>
 
+    <!-- Delete Client Modal -->
     <div class="modal fade" id="modalDeleteClient" tabindex="-1" aria-labelledby="modalDeleteClientLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -103,6 +119,10 @@
         </div>
     </div>
 
+    <!-- #endregion Modals -->
+
+    <!-- #region Scripts -->
+
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../../js/components/navbar.js"></script>
@@ -110,29 +130,32 @@
     <script src="../js/services/api.js"></script>
 
     <script>
+
         //#region Fetch Clients
+
         function fetchClients() {
-            event.preventDefault();
-            const searchValue = document.getElementById('searchInput').value;
+            const searchValue = $('#searchInput').val().trim();
+
+            const $container = $('#clientesContainer');
+            const spinner = $('#loadingSpinner');
+
+            spinner.show();
+            $container.find('table').remove();
 
             api.get(`/clients?nameOrEmail=${searchValue}`)
                 .then(response => {
-                    const container = document.getElementById('clientesContainer');
-                    container.innerHTML = response.data;
+                    spinner.hide();
+                    $container.html(response.data);
 
-                    container.querySelectorAll('.btn-update').forEach(btn => {
-                        btn.addEventListener('click', function () {
-                            const clientId = this.closest('tr').querySelector('td').textContent.trim();
-                            openClientModal(clientId);
-                        });
+                    $container.find('.btn-update').off('click').on('click', function () {
+                        const clientId = $(this).closest('tr').find('td:first').text().trim();
+                        openClientModal(clientId);
                     });
 
-                    container.querySelectorAll('.btn-delete').forEach(btn => {
-                        btn.addEventListener('click', function () {
-                            const clientId = this.dataset.id;
-                            const nameClient = this.dataset.name;
-                            openDeleteModal(clientId, nameClient);
-                        });
+                    $container.find('.btn-delete').off('click').on('click', function () {
+                        const clientId = $(this).data('id');
+                        const nameClient = $(this).data('name');
+                        openDeleteModal(clientId, nameClient);
                     });
 
                 })
@@ -140,181 +163,153 @@
                     handleApiError(error);
                 });
         }
+
         //#endregion
 
         //#region Open Add Client Modal
-        function openClientModalInsert() {
-            const modalElement = document.getElementById('modalClient');
-            const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
 
-            document.getElementById('formClient').reset();
-            document.getElementById('modalClientLabel').textContent = "Adicionar Novo Cliente";
-            document.getElementById('clientId').value = "";
-            modal.show();
+        function openClientModalInsert() {
+            const $modal = $('#modalClient');
+            $('#formClient')[0].reset();
+            $('#modalClientLabel').text("Adicionar Novo Cliente");
+            $('#clientId').val("");
+            $modal.modal('show');
         }
+
         //#endregion
 
         //#region DOM Events
-        document.getElementById('searchButton').addEventListener('click', fetchClients);
-        document.addEventListener('DOMContentLoaded', fetchClients);
-        document.getElementById('addClientButton').addEventListener('click', openClientModalInsert);
+
+        $('#searchButton').on('click', function (e) { e.preventDefault(); fetchClients(); });
+        $(document).ready(function () {
+            fetchClients();
+            $('#addClientButton').on('click', openClientModalInsert);
+        });
+
         //#endregion
 
-        const emailInput = document.getElementById("email");
+        //#region Input Validations
 
-        emailInput.addEventListener("blur", function () {
+        $("#email").on("blur", function () {
             const regex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-            if (!regex.test(this.value)) {
-                this.setCustomValidity("invalid");
-            } else {
-                this.setCustomValidity(""); 
-            }
+            this.setCustomValidity(regex.test(this.value) ? "" : "invalid");
         });
 
+        $('#phone').on('input', function () {
+            let digits = $(this).val().replace(/\D/g, '');
 
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const phoneInput = document.getElementById('phone');
-
-            phoneInput.addEventListener('input', function () {
-                let digits = this.value.replace(/\D/g, '');
-
-                if (digits.length === 0) {
-                this.value = '';
+            if (digits.length === 0) {
+                $(this).val('');
                 this.setCustomValidity('invalid');
                 return;
-                }
+            }
 
-                if (digits.length > 11) digits = digits.slice(0, 11);
+            if (digits.length > 11) digits = digits.slice(0, 11);
 
-                if (digits.length <= 2) {
-                this.value = `(${digits}`;
-                } else if (digits.length <= 6) {
-                this.value = `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
-                } else if (digits.length <= 10) {
-                this.value = `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
-                } else {
-                this.value = `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
-                }
+            if (digits.length <= 2) $(this).val(`(${digits}`);
+            else if (digits.length <= 6) $(this).val(`(${digits.slice(0, 2)}) ${digits.slice(2)}`);
+            else if (digits.length <= 10) $(this).val(`(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`);
+            else $(this).val(`(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`);
 
-                const regex = /^\(\d{2}\)\s\d{4,5}-\d{4}$/;
-                if (!regex.test(this.value)) {
-                this.setCustomValidity('invalid');
-                } else {
-                this.setCustomValidity('');
-                }
-            });
+            const regex = /^\(\d{2}\)\s\d{4,5}-\d{4}$/;
+            this.setCustomValidity(regex.test($(this).val()) ? "" : "invalid");
         });
 
-
+        //#endregion
 
         //#region Submit Client Form
+
         $("#formClient").on("submit", function (e) {
             e.preventDefault();
-
-             const form = this;
+            const form = this;
 
             if (!form.checkValidity()) {
                 e.stopPropagation();
-                $(form).addClass("was-validated"); 
-                return; 
+                $(form).addClass("was-validated");
+                return;
             }
-           
+
             const client = {
                 name: $("#name").val().trim(),
-                email: $("#email").val().trim().toLowerCase(), 
-                phone: $("#phone").val().replace(/\D/g, "") // remove non-digit characters
+                email: $("#email").val().trim().toLowerCase(),
+                phone: $("#phone").val().replace(/\D/g, "")
             };
 
-
-            const clientId = $("#clientId").val();  
+            const clientId = $("#clientId").val();
 
             if (clientId) {
-                // Update client
                 api.put(`/client/${clientId}`, client)
                     .then(response => {
                         alert(response.data.message || "Cliente atualizado com sucesso!");
-                        bootstrap.Modal.getInstance(document.getElementById('modalClient')).hide();
-                        document.getElementById('searchButton').click();
+                        $('#modalClient').modal('hide');
+                        $('#searchButton').click();
                     })
-                    .catch(error => {
-                        handleApiError(error);
-                    });
+                    .catch(handleApiError);
             } else {
-                // Add new client
                 api.post("/client", client)
                     .then(response => {
                         alert(response.data.message || "Cliente cadastrado com sucesso!");
-                        bootstrap.Modal.getInstance(document.getElementById('modalClient')).hide();
-                        document.getElementById('searchButton').click();
+                        $('#modalClient').modal('hide');
+                        $('#searchButton').click();
                     })
-                    .catch(error => {
-                        handleApiError(error);
-                    });
+                    .catch(handleApiError);
             }
         });
+
         //#endregion
 
-        
+        //#region Reset Modal on Close
 
-
-         $('#modalClient').on('hidden.bs.modal', function () {
-            const form = $("#formClient")[0];
-
+        $('#modalClient').on('hidden.bs.modal', function () {
+            const form = $('#formClient')[0];
             form.reset();
-            form.classList.remove("was-validated");
-
-            $("#name")[0].setCustomValidity("");
-            $("#email")[0].setCustomValidity("");
-            $("#phone")[0].setCustomValidity("");
-            
+            $(form).removeClass("was-validated");
+            $("#name, #email, #phone").each(function () { this.setCustomValidity(""); });
         });
 
+        //#endregion
+
         //#region Open Edit Client Modal
+
         function openClientModal(clientId) {
             api.get(`/client/${clientId}`)
                 .then(response => {
                     const client = response.data;
-                    document.getElementById('name').value = client.name;
-                    document.getElementById('email').value = client.email;
-                    document.getElementById('phone').value = client.phone;
-                    document.getElementById('modalClientLabel').textContent = "Editar Cliente";
-                    document.getElementById('clientId').value = client.id;
-
-                    const modalElement = document.getElementById('modalClient');
-                    const modal = new bootstrap.Modal(modalElement);
-                    modal.show();
+                    $('#name').val(client.name);
+                    $('#email').val(client.email);
+                    $('#phone').val(client.phone);
+                    $('#modalClientLabel').text("Editar Cliente");
+                    $('#clientId').val(client.id);
+                    $('#modalClient').modal('show');
                 })
-                .catch(error => {
-                    handleApiError(error);
-                });
+                .catch(handleApiError);
         }
+
         //#endregion
 
         //#region Delete Client Modal
+
         function openDeleteModal(clientId, nameClient) {
-            document.getElementById('deleteClientId').value = clientId;
-            document.getElementById('deleteClientMessage').textContent = `Tem certeza que deseja deletar o cliente ${nameClient}?`;
-            const modal = new bootstrap.Modal(document.getElementById('modalDeleteClient'));
-            modal.show();
+            $('#deleteClientId').val(clientId);
+            $('#deleteClientMessage').text(`Tem certeza que deseja deletar o cliente ${nameClient}?`);
+            $('#modalDeleteClient').modal('show');
         }
 
-        document.getElementById('confirmDeleteClient').addEventListener('click', function () {
-            const clientId = document.getElementById('deleteClientId').value;
-
+        $('#confirmDeleteClient').on('click', function () {
+            const clientId = $('#deleteClientId').val();
             api.delete(`/client/${clientId}`)
                 .then(() => {
                     alert("Cliente deletado com sucesso!");
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('modalDeleteClient'));
-                    modal.hide();
-                    document.getElementById('searchButton').click(); // Refresh list
+                    $('#modalDeleteClient').modal('hide');
+                    $('#searchButton').click();
                 })
-                .catch(err => {
-                    handleApiError(err);
-                });
+                .catch(handleApiError);
         });
+
         //#endregion
     </script>
+
+    <!-- #endregion -->
 
 </body>
 
