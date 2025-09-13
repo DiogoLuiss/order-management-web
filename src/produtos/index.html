@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Sistema de Gerenciamento de Pedidos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <div id="navbar"></div>
+    <div id="app" class="container-xxl mt-5">
+
+        <div class="mt-5">
+            <h1 class="mb-4">Lista de Produtos</h1>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <form id="searchForm" class="input-group">
+                        <div class="input-group">
+                            <input type="text" id="searchInput" class="form-control" placeholder="Buscar por nome">
+                            <button id="searchButton" class="btn btn-primary" type="submit">Buscar</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="col-md-6 text-end ">
+                    <button class="btn btn-success btn-add-product" data-bs-toggle="modal"
+                        data-bs-target="#modalProduct" id="addProductButton">
+                        Adicionar Produto
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-responsive" id="productsContainer">
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive" id="productsContainer">
+    </div>
+
+    <div class="modal fade" id="modalProduct" tabindex="-1" aria-labelledby="modalProductLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="modalProductLabel">Cadastro de Produto</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formProduct" novalidate>
+                        <input type="hidden" id="productId" value="">
+
+                        <div class="mb-3">
+                            <label for="productName" class="form-label">Nome</label>
+                            <input type="text" class="form-control" id="productName"
+                                placeholder="Digite o nome do produto" required maxlength="100">
+                            <div class="invalid-feedback">O nome é obrigatório e deve ter no máximo 100 caracteres.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="productDescription" class="form-label">Descrição</label>
+                            <textarea class="form-control" id="productDescription"
+                                placeholder="Digite a descrição do produto" rows="3" required
+                                maxlength="255"></textarea>
+                            <div class="invalid-feedback">A descrição é obrigatória e deve ter no máximo 255 caracteres.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="productPrice" class="form-label">Preço</label>
+                            <input type="number" class="form-control" id="productPrice" placeholder="0.00" step="0.01"
+                                min="0" required maxlength="1000000">
+                            <div class="invalid-feedback">O preço é obrigatório, deve ser um número positivo e não pode
+                                ser maior que R$1000000.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="productStockQuantity" class="form-label">Quantidade em Estoque</label>
+                            <input type="number" class="form-control" id="productStockQuantity" placeholder="0" min="0"
+                                required maxlength="10000">
+                            <div class="invalid-feedback">A quantidade em estoque é obrigatória, deve ser um número
+                                positivo e nao pode ser maior que 10000.</div>
+
+                        </div>
+
+                        <div class="d-flex justify-content-end">
+                            <button type="button" class="btn btn-outline-danger  me-2"
+                                data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-success">Confirmar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalDeleteProduct" tabindex="-1" aria-labelledby="modalDeleteProductLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="modalDeleteProductLabel">Confirmar Exclusão</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="deleteProductMessage"></p>
+                    <input type="hidden" id="deleteProductId" value="">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteProduct">Deletar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/components/navbar.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="../js/services/api.js"></script>
+
+    <script>
+        function fetchProducts() {
+            event.preventDefault();
+            const searchValue = document.getElementById('searchInput').value;
+
+            api.get(`/products?name=${searchValue}`)
+                .then(response => {
+                    const container = document.getElementById('productsContainer');
+                    container.innerHTML = response.data;
+
+                    container.querySelectorAll('.btn-update').forEach(btn => {
+                        btn.addEventListener('click', function () {
+                            const productId = this.closest('tr').querySelector('td').textContent.trim();
+                            openUpdateProductModal(productId);
+                        });
+                    });
+
+                    container.querySelectorAll('.btn-delete').forEach(btn => {
+                        btn.addEventListener('click', function () {
+                            const productId = this.dataset.id;
+                            const nameProduct = this.dataset.name;
+                            openDeleteProductModal(productId, nameProduct);
+                        });
+                    });
+                })
+                .catch(error => {
+                    console.error("Erro ao abrir modal do produto:", error);
+                    alert("Não foi possível carregar os dados dos produtos.");
+                });
+        }
+
+        function openUpdateProductModal(idProduct) {
+            api.get(`/product/${idProduct}`)
+                .then(response => {
+                    const product = response.data;
+
+                    document.getElementById('productId').value = product.id;
+                    document.getElementById('productName').value = product.name;
+                    document.getElementById('productDescription').value = product.description;
+                    document.getElementById('productPrice').value = product.price;
+                    document.getElementById('productStockQuantity').value = product.stockQuantity;
+
+                    const modalElement = document.getElementById('modalProduct');
+                    const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+                    document.getElementById('modalProductLabel').textContent = "Atualizar Produto";
+                    modal.show();
+                })
+                .catch(error => {
+                    console.error("Erro ao abrir modal do produto:", error);
+                    alert("Não foi possível carregar os dados do produto.");
+                });
+
+        }
+
+        function openDeleteProductModal(idProduct, nameProduct) {
+            $("#deleteProductId").val(idProduct);
+            $("#deleteProductMessage").text(`Deseja realmente excluir o produto "${nameProduct}"?`);
+            const modal = new bootstrap.Modal(document.getElementById('modalDeleteProduct'));
+            modal.show();
+        }
+
+        $("#confirmDeleteProduct").on("click", function () {
+            const productId = $("#deleteProductId").val();
+
+            api.delete(`/product/${productId}`)
+                .then(response => {
+                    alert(response.data.message || "Produto deletado com sucesso!");
+                    bootstrap.Modal.getInstance(document.getElementById('modalDeleteProduct')).hide();
+                    document.getElementById('searchButton').click();
+                })
+                .catch(error => {
+                    console.error("Erro ao deletar produto:", error);
+                    handleApiError(error);
+
+                });
+        });
+
+        //#region Submit Product Form
+
+        $("#formProduct").on("submit", function (e) {
+            e.preventDefault();
+
+            const form = this;
+
+            if (!form.checkValidity()) {
+                e.stopPropagation();
+                $(form).addClass("was-validated");
+                return;
+                    }
+            const product = {
+                name: $("#productName").val().trim(),
+                description: $("#productDescription").val().trim(),
+                price: parseFloat($("#productPrice").val()),
+                stockQuantity: parseInt($("#productStockQuantity").val())
+            };
+
+            const productId = $("#productId").val();
+
+            if (productId) {
+
+                api.put(`/product/${productId}`, product)
+                    .then(response => {
+                        alert(response.data.message || "Produto atualizado com sucesso!");
+                        bootstrap.Modal.getInstance(document.getElementById('modalProduct')).hide();
+                        document.getElementById('searchButton').click();
+                    })
+                    .catch(error => {
+                        handleApiError(error);
+                    });
+            } else {
+
+                api.post("/product", product)
+                    .then(response => {
+                        alert(response.data.message || "Produto cadastrado com sucesso!");
+                        bootstrap.Modal.getInstance(document.getElementById('modalProduct')).hide();
+                        document.getElementById('searchButton').click();
+                    })
+                    .catch(error => {
+                        console.error("Erro ao cadastrar produto:", error);
+                        alert("Falha ao cadastrar o produto.");
+                    });
+            }
+        });
+
+        //#endregion
+
+        $('#modalProduct').on('hidden.bs.modal', function () {
+            const form = $("#formProduct")[0];
+
+            form.reset();
+            form.classList.remove("was-validated");
+
+            // limpa mensagens de erro customizadas
+            $("#productName")[0].setCustomValidity("");
+            $("#productDescription")[0].setCustomValidity("");
+            $("#productPrice")[0].setCustomValidity("");
+            $("#productStockQuantity")[0].setCustomValidity("");
+        });
+
+        //#region Open Add Product Modal
+
+        function openProductModalInsert() {
+            const modalElement = document.getElementById('modalProduct');
+            const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+
+            document.getElementById('formProduct').reset();
+            document.getElementById('modalProductLabel').textContent = "Adicionar Novo Produto";
+            document.getElementById('productId').value = "";
+            modal.show();
+        }
+
+        //#endregion
+
+        //#region DOM Events
+
+        document.getElementById('searchButton').addEventListener('click', fetchProducts);
+        document.addEventListener('DOMContentLoaded', fetchProducts);
+        document.getElementById('addProductButton').addEventListener('click', openProductModalInsert);
+
+        //#endregion
+
+    </script>
+</body>
+
+</html>

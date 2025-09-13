@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedidos - Sistema de Gerenciamento de Pedidos</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div id="navbar"></div>
+    <div id="app" class="container-xxl mt-5">
+        <div class="mt-5">
+            <h1 class="mb-4">Lista de Pedidos</h1>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <form id="searchOrderForm" class="d-flex align-items-center gap-2">
+                        <input type="text" id="searchOrderInput" class="form-control"
+                            placeholder="Buscar nome do cliente">
+
+                        <select id="filterStatus" class="form-select" style="width: auto;">
+                            <option value="">Todos</option>
+                        </select>
+
+                        <button id="searchOrderButton" class="btn btn-primary" type="submit">Buscar</button>
+                    </form>
+
+                </div>
+
+                <div class="col-md-6 text-end">
+                    <button class="btn btn-success" id="addOrderButton">
+                        Cadastrar Novo Pedido
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-responsive" id="ordersContainer">
+
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalOrderDetails" tabindex="-1" aria-labelledby="modalOrderDetailsLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="modalOrderDetailsLabel">Detalhes do Pedido</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formOrderDetails">
+                        <div class="mb-3">
+                            <label for="detailOrderId" class="form-label"><strong>Nº Pedido:</strong></label>
+                            <input type="text" id="detailOrderId" class="form-control" readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="detailCustomer" class="form-label"><strong>Cliente:</strong></label>
+                            <input type="text" id="detailCustomer" class="form-control" readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="detailDate" class="form-label"><strong>Data:</strong></label>
+                            <input type="text" id="detailDate" class="form-control" readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="detailStatus" class="form-label"><strong>Status:</strong></label>
+                            <input type="text" id="detailStatus" class="form-control" readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            <label><strong>Itens:</strong></label>
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-striped" id="detailItemsTable">
+                                    <thead class="table-primary">
+                                        <tr>
+                                            <th>Nome</th>
+                                            <th>Descrição</th>
+                                            <th>Quantidade</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="mb-3 row justify-content-end align-items-center">
+                            <label for="detailTotal" class="col-auto col-form-label"><strong>Total:</strong></label>
+                            <div class="col-auto">
+                                <input type="text" id="detailTotal" class="form-control text-end" readonly
+                                    style="width: auto; min-width: 50px;">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalChangeStatus" tabindex="-1" aria-labelledby="modalChangeStatusLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="modalChangeStatusLabel">Alterar Status do Pedido</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="statusOrderId">
+                    <div class="mb-3">
+                        <label for="newStatus" class="form-label">Novo Status</label>
+                        <select id="newStatus" class="form-select">
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline-danger" data-bs-dismiss="modal">Cancelar</button>
+                    <button class="btn btn-success" id="confirmChangeStatus">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="../js/components/navbar.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="../js/services/api.js"></script>
+
+    <script>
+
+        function fetchOrders(event) {
+            if (event) event.preventDefault();
+
+            const clientName = $("#searchOrderInput").val().trim();
+            const statusId = $("#filterStatus").val();
+            let query = [];
+            if (clientName) query.push(`clientName=${encodeURIComponent(clientName)}`);
+            if (statusId) query.push(`orderStatusId=${encodeURIComponent(statusId)}`);
+
+            const queryString = query.length ? `?${query.join('&')}` : '';
+
+            api.get(`/orders${queryString}`)
+                .then(response => {
+                    $("#ordersContainer").html(response.data);
+                    $(".btn-view-details").off("click").on("click", handleOrderDetailsClick);
+                    $(".btn-update-status").off("click").on("click", handleOrderUpdateStatus);
+                })
+                .catch(error => {
+                    console.error("Erro ao buscar pedidos:", error);
+                    alert("Não foi possível carregar os pedidos.");
+                });
+        }
+
+        function handleOrderDetailsClick() {
+            const orderId = $(this).data("id");
+
+            api.get(`/order/${orderId}`)
+                .then(response => {
+                    const order = response.data;
+
+                    // Preencher inputs
+                    $("#detailOrderId").val(order.id);
+                    $("#detailCustomer").val(order.nomeCliente);
+                    $("#detailDate").val(new Date(order.orderDate).toLocaleString("pt-BR", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit"
+                    }));
+                    $("#detailStatus").val(order.status);
+                    $("#detailTotal").val(order.totalValue.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }));
+
+                    const itemsTableBody = $("#detailItemsTable tbody");
+                    itemsTableBody.empty();
+                    if (order.items && order.items.length > 0) {
+                        order.items.forEach(item => {
+                            itemsTableBody.append(`
+                        <tr>
+                            <td>${item.name}</td>
+                            <td>${item.description}</td>
+                            <td>${item.quantity}</td>
+                        </tr>
+                    `);
+                        });
+                    }
+
+                    new bootstrap.Modal(document.getElementById("modalOrderDetails")).show();
+                })
+                .catch(error => {
+                    console.error("Erro ao buscar detalhes do pedido:", error);
+                    alert("Não foi possível carregar os detalhes do pedido.");
+                });
+        }
+
+        function handleOrderUpdateStatus(orderId) {
+            const orderIdForStatus = $(this).data("id");
+
+            api.get('/order/status')
+                .then(response => {
+                    const statuses = response.data;
+                    const select = $("#newStatus");
+
+                    select.empty();
+
+                    statuses.forEach(status => {
+                        select.append(`<option value="${status.id}">${status.description}</option>`);
+                    });
+
+                    api.get(`/order/${orderIdForStatus}/status`)
+                        .then(res => {
+                            const currentStatus = res.data;
+                            select.val(currentStatus);
+                        })
+                        .catch(err => console.error("Erro ao buscar status atual do pedido:", err));
+
+                    $("#statusOrderId").val(orderIdForStatus);
+                    new bootstrap.Modal(document.getElementById("modalChangeStatus")).show();
+                })
+                .catch(error => {
+                    console.error("Erro ao carregar status:", error);
+                    alert("Não foi possível carregar os status do pedido.");
+                });
+        }
+
+        $(document).on("click", "#addOrderButton", function () {
+            window.location.href = "cadastrar";
+        });
+
+        $("#confirmChangeStatus").on("click", function () {
+            const orderId = $("#statusOrderId").val();
+            const newStatusId = $("#newStatus").val();
+
+            if (!orderId || !newStatusId) {
+                alert("É obrigatório selecionar um status.");
+                return;
+            }
+
+            api.put(`/order/${orderId}/status`, parseInt(newStatusId))
+                .then(() => {
+                    alert(`Pedido ${orderId} atualizado para o novo status.`);
+                    bootstrap.Modal.getInstance(document.getElementById("modalChangeStatus")).hide();
+                    fetchOrders();
+
+                })
+                .catch(error => {
+                    console.error("Erro ao atualizar status:", error);
+                    handleApiError(error);
+                });
+        });
+
+        function fetchOrderStatuses() {
+            api.get('/order/status')
+                .then(response => {
+                    const statuses = response.data;
+                    const select = $("#filterStatus");
+
+                    select.empty();
+                    select.append(`<option value="">Todos</option>`); // Opção para todos
+
+                    statuses.forEach(status => {
+                        select.append(`<option value="${status.id}">${status.description}</option>`);
+                    });
+                })
+                .catch(error => {
+                    console.error("Erro ao carregar os status:", error);
+                    alert("Não foi possível carregar os status do pedido.");
+                });
+        }
+
+        $("#searchOrderForm").on("submit", fetchOrders);
+        $("#filterStatus").on("change", function () {
+            fetchOrders();
+        });
+
+        //#region DOM Events
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchOrders();
+            fetchOrderStatuses();
+        });
+
+        //#endregion
+
+    </script>
+</body>
+
+</html>
