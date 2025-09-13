@@ -10,17 +10,17 @@ function handleApiError(error) {
         let data = error.response.data;
 
         if (Array.isArray(data.message)) {
-            alert(data.message.join("\n"));
+            showToast(data.message.join("\n"), 'danger', 5000);
         }
         else if (typeof data.message === "string") {
-            alert(data.message);
+            showToast(data.message, 'danger', 5000);
         }
         else {
-            alert("Ocorreu um erro inesperado ao processar a requisição.");
+            showToast("Ocorreu um erro inesperado ao processar a requisição.", 'danger', 5000);
         }
 
     } else {
-        alert("Erro de conexão com o servidor.");
+        showToast("Erro de conexão com o servidor.", 'danger', 5000);
     }
 
     console.error("Erro detalhado:", error);

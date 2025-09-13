@@ -128,6 +128,7 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="../../js/components/navbar.js"></script>
     <script src="../../js/services/api.js"></script>
+    <script src="../../js/components/toast.js"></script>
 
     <script>
         let cart = [];
@@ -157,10 +158,7 @@
                     });
 
                 })
-                .catch(error => {
-                    console.error("Erro ao abrir modal do cliente:", error);
-                    alert("Não foi possível carregar os dados do cliente.");
-                });
+                .catch(handleApiError);
         }
 
         //#endregion
@@ -181,10 +179,7 @@
                     $spinner.hide();
                     $container.html(response.data);
                 })
-                .catch(error => {
-                    console.error("Erro ao carregar produtos:", error);
-                    alert("Não foi possível carregar os produtos.");
-                });
+                .catch(handleApiError);
         }
 
         //#endregion
@@ -195,11 +190,11 @@
             let customerId = $("#customerName").data("data-id");
 
             if (!customerId) {
-                alert("Por favor, selecione um cliente.");
+                showToast("Por favor, selecione um cliente.", "warning");
                 return;
             }
             if (cart.length === 0) {
-                alert("O carrinho está vazio. Adicione produtos antes de finalizar o pedido.");
+                showToast("O carrinho está vazio. Adicione produtos antes de finalizar o pedido.", "warning");
                 return;
             }
 
@@ -213,7 +208,7 @@
 
             api.post('/order', orderData)
                 .then(response => {
-                    alert("Pedido cadastrado com sucesso!");
+                    showToast(response.data.message || "Pedido cadastrado com sucesso!", "success");
                     window.location.href = "../";
                 })
                 .catch(error => {

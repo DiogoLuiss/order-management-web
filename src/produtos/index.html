@@ -141,6 +141,7 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="../js/services/api.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+    <script src="../js/components/toast.js"></script>
 
     <script>
 
@@ -155,7 +156,7 @@
 
             const searchValue = $('#searchInput').val();
             const spinner = $('#loadingSpinner');
-            
+
             $container.find('table').addClass('opacity-50');
             spinner.show();
 
@@ -179,10 +180,7 @@
                         });
                     });
                 })
-                .catch(error => {
-                    console.error("Error fetching products:", error);
-                    alert("Não foi possível carregar os dados dos produtos.");
-                });
+                .catch(handleApiError);
         }
 
         //#endregion
@@ -203,10 +201,7 @@
                     $('#modalProductLabel').text("Atualizar Produto");
                     modal.show();
                 })
-                .catch(error => {
-                    console.error("Error opening product modal:", error);
-                    alert("Não foi possível carregar os dados do produto.");
-                });
+                .catch(handleApiError);
         }
 
         function openDeleteProductModal(idProduct, nameProduct) {
@@ -233,7 +228,7 @@
 
             api.delete(`/product/${productId}`)
                 .then(response => {
-                    alert(response.data.message || "Produto deletado com sucesso!");
+                    showToast(response.data.message || "Produto deletado com sucesso!", "success");
                     bootstrap.Modal.getInstance($('#modalDeleteProduct')[0]).hide();
                     $('#searchButton').click();
                 })
@@ -275,7 +270,7 @@
 
                 api.put(`/product/${productId}`, product)
                     .then(response => {
-                        alert(response.data.message || "Produto atualizado com sucesso!");
+                        showToast(response.data.message || "Produto atualizado com sucesso!", "success");
                         bootstrap.Modal.getInstance($('#modalProduct')[0]).hide();
                         $('#searchButton').click();
                     })
@@ -286,14 +281,12 @@
 
                 api.post("/product", product)
                     .then(response => {
-                        alert(response.data.message || "Produto cadastrado com sucesso!");
+                        showToast(response.data.message || "Produto cadastrado com sucesso!", "success");
                         bootstrap.Modal.getInstance($('#modalProduct')[0]).hide();
                         $('#searchButton').click();
                     })
-                    .catch(error => {
-                        console.error("Erro ao cadastrar produto:", error);
-                        alert("Falha ao cadastrar o produto.");
-                    });
+                    .catch(handleApiError);
+
             }
         });
 

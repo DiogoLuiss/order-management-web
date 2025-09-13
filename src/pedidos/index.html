@@ -148,6 +148,7 @@
     <script src="../js/components/navbar.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="../js/services/api.js"></script>
+    <script src="../js/components/toast.js"></script>
 
     <script>
 
@@ -167,7 +168,7 @@
             const $container = $('#ordersContainer');
 
             const spinner = $('#loadingSpinner');
-            
+
             $container.find('table').addClass('opacity-50');
             spinner.show();
 
@@ -178,10 +179,7 @@
                     $(".btn-view-details").off("click").on("click", handleOrderDetailsClick);
                     $(".btn-update-status").off("click").on("click", handleOrderUpdateStatus);
                 })
-                .catch(error => {
-                    console.error("Erro ao buscar pedidos:", error);
-                    alert("Não foi possível carregar os pedidos.");
-                });
+                .catch(handleApiError);
         }
 
         //#endregion Fetch Orders
@@ -223,10 +221,7 @@
 
                     new bootstrap.Modal(document.getElementById("modalOrderDetails")).show();
                 })
-                .catch(error => {
-                    console.error("Erro ao buscar detalhes do pedido:", error);
-                    alert("Não foi possível carregar os detalhes do pedido.");
-                });
+                .catch(handleApiError);
         }
 
         //#endregion Order Details Modal
@@ -257,10 +252,7 @@
                     $("#statusOrderId").val(orderIdForStatus);
                     $("#modalChangeStatus").modal("show");
                 })
-                .catch(error => {
-                    console.error("Erro ao carregar status:", error);
-                    alert("Não foi possível carregar os status do pedido.");
-                });
+                .catch(handleApiError);
         }
 
         //#endregion Update Order Status Modal
@@ -280,13 +272,13 @@
             const newStatusId = $("#newStatus").val();
 
             if (!orderId || !newStatusId) {
-                alert("É obrigatório selecionar um status.");
+                showToast("É obrigatório selecionar um status.", "warning");
                 return;
             }
 
             api.put(`/order/${orderId}/status`, parseInt(newStatusId))
-                .then(() => {
-                    alert(`Pedido ${orderId} atualizado para o novo status.`);
+                .then((response) => {
+                    showToast(response.data.message || `Pedido ${orderId} atualizado para o novo status.`, "success");
                     $("#modalChangeStatus").modal("hide");
                     fetchOrders();
                 })
@@ -313,10 +305,7 @@
                         select.append(`<option value="${status.id}">${status.description}</option>`);
                     });
                 })
-                .catch(error => {
-                    console.error("Erro ao carregar os status:", error);
-                    alert("Não foi possível carregar os status do pedido.");
-                });
+                .catch(handleApiError);
         }
 
         //#endregion Fetch Order Statuses for Filter

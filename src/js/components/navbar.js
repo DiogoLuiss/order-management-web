@@ -3,18 +3,19 @@ $(() => {
         const currentPath = window.location.pathname;
 
         const routeMap = {
-            "/pedidos/": "navOrders",
-            "/clientes/": "navCustomers",
-            "/produtos/": "navProducts",
-            "/pedidos/cadastrar/": "navNewOrder"
+            "/clientes/": "#navCustomers",
+            "/produtos/": "#navProducts",
+            "/pedidos/": "#navOrders",
+            "/pedidos/cadastrar/": "#navNewOrder"
         };
 
-        const activeId = routeMap[currentPath];
-        if (activeId) {
-            const link = document.getElementById(activeId);
-            link.classList.add("active");
-            link.style.pointerEvents = "none";
-            link.setAttribute("aria-current", "page");
+        if (routeMap[currentPath]) {
+            const $link = $(routeMap[currentPath]);
+            $link.addClass("active").css("pointer-events", "none").attr("aria-current", "page");
         }
+
+        const $brandLink = $(".navbar-brand");
+        $brandLink.css("pointer-events", currentPath === "/" ? "none" : "auto")
+                  .attr("aria-current", currentPath === "/" ? "page" : null);
     });
 });
