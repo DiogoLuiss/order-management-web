@@ -12,36 +12,43 @@
 <body>
 
     <div id="navbar"></div>
-    <div id="app" class="container-xxl mt-5">
+    <div class="container-xxl mt-5">
+        <h1 class="mb-4">Lista de Produtos</h1>
 
-        <div class="mt-5">
-            <h1 class="mb-4">Lista de Produtos</h1>
+        <!-- #region Search & Add -->
 
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <form id="searchForm" class="input-group">
-                        <div class="input-group">
-                            <input type="text" id="searchInput" class="form-control" placeholder="Buscar por nome">
-                            <button id="searchButton" class="btn btn-primary" type="submit">Buscar</button>
-                        </div>
-                    </form>
-                </div>
-
-                <div class="col-md-6 text-end ">
-                    <button class="btn btn-success btn-add-product" data-bs-toggle="modal"
-                        data-bs-target="#modalProduct" id="addProductButton">
-                        Adicionar Produto
-                    </button>
-                </div>
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <form id="searchForm" class="input-group">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Buscar por nome">
+                    <button id="searchButton" class="btn btn-primary" type="submit">Buscar</button>
+                </form>
             </div>
-
-            <div class="table-responsive" id="productsContainer">
+            <div class="col-md-6 text-end">
+                <button class="btn btn-success btn-add-product" data-bs-toggle="modal" data-bs-target="#modalProduct"
+                    id="addProductButton">
+                    Adicionar Produto
+                </button>
             </div>
         </div>
+
+        <!-- #endregion -->
+
+        <!-- #region Products Table -->
+
+        <div class="table-responsive" id="productsContainer">
+            <div id="loadingSpinner" class="text-center my-3" style="display:none;">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Carregando...</span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- #endregion -->
     </div>
 
-    <div class="table-responsive" id="productsContainer">
-    </div>
+    <!-- #region Product Modal -->
 
     <div class="modal fade" id="modalProduct" tabindex="-1" aria-labelledby="modalProductLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -74,16 +81,18 @@
 
                         <div class="mb-3">
                             <label for="productPrice" class="form-label">Preço</label>
-                            <input type="number" class="form-control" id="productPrice" placeholder="0.00" step="0.01"
-                                min="0" required maxlength="1000000">
-                            <div class="invalid-feedback">O preço é obrigatório, deve ser um número positivo e não pode
-                                ser maior que R$1000000.</div>
+                            <input type="text" class="form-control" id="productPrice" placeholder="0,00" required>
+                            <div class="invalid-feedback">
+                                O preço é obrigatório, deve ser um número positivo e não pode ser maior que
+                                R$1.000.000,00.
+                            </div>
+
                         </div>
 
                         <div class="mb-3">
                             <label for="productStockQuantity" class="form-label">Quantidade em Estoque</label>
                             <input type="number" class="form-control" id="productStockQuantity" placeholder="0" min="0"
-                                required maxlength="10000">
+                                max="10000" required>
                             <div class="invalid-feedback">A quantidade em estoque é obrigatória, deve ser um número
                                 positivo e nao pode ser maior que 10000.</div>
 
@@ -99,6 +108,10 @@
             </div>
         </div>
     </div>
+
+    <!-- #endregion -->
+
+    <!-- #region Delete Modal -->
 
     <div class="modal fade" id="modalDeleteProduct" tabindex="-1" aria-labelledby="modalDeleteProductLabel"
         aria-hidden="true">
@@ -121,72 +134,102 @@
         </div>
     </div>
 
+    <!-- #endregion -->
+
+    <!-- #region Scripts -->
+
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../js/components/navbar.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="../js/services/api.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
 
     <script>
-        function fetchProducts() {
-            event.preventDefault();
-            const searchValue = document.getElementById('searchInput').value;
+
+        //#region Fetch Products
+
+        function fetchProducts(event) {
+
+            if (event && typeof event.preventDefault === 'function')
+                event.preventDefault();
+
+            const container = $('#productsContainer');
+
+            const searchValue = $('#searchInput').val();
+            const spinner = $('#loadingSpinner');
+
+            spinner.show();
+            container.find('table').remove();
 
             api.get(`/products?name=${searchValue}`)
                 .then(response => {
-                    const container = document.getElementById('productsContainer');
-                    container.innerHTML = response.data;
+                    spinner.hide();
+                    container.html(response.data);
 
-                    container.querySelectorAll('.btn-update').forEach(btn => {
-                        btn.addEventListener('click', function () {
-                            const productId = this.closest('tr').querySelector('td').textContent.trim();
+                    container.find('.btn-update').each(function () {
+                        $(this).on('click', function () {
+                            const productId = $(this).closest('tr').find('td').first().text().trim();
                             openUpdateProductModal(productId);
                         });
                     });
 
-                    container.querySelectorAll('.btn-delete').forEach(btn => {
-                        btn.addEventListener('click', function () {
-                            const productId = this.dataset.id;
-                            const nameProduct = this.dataset.name;
+                    container.find('.btn-delete').each(function () {
+                        $(this).on('click', function () {
+                            const productId = $(this).data('id');
+                            const nameProduct = $(this).data('name');
                             openDeleteProductModal(productId, nameProduct);
                         });
                     });
                 })
                 .catch(error => {
-                    console.error("Erro ao abrir modal do produto:", error);
+                    console.error("Error fetching products:", error);
                     alert("Não foi possível carregar os dados dos produtos.");
                 });
         }
+
+        //#endregion
+
+        //#region Open Modals
 
         function openUpdateProductModal(idProduct) {
             api.get(`/product/${idProduct}`)
                 .then(response => {
                     const product = response.data;
+                    $('#productId').val(product.id);
+                    $('#productName').val(product.name);
+                    $('#productDescription').val(product.description);
+                    $('#productPrice').val(product.price);
+                    $('#productStockQuantity').val(product.stockQuantity);
 
-                    document.getElementById('productId').value = product.id;
-                    document.getElementById('productName').value = product.name;
-                    document.getElementById('productDescription').value = product.description;
-                    document.getElementById('productPrice').value = product.price;
-                    document.getElementById('productStockQuantity').value = product.stockQuantity;
-
-                    const modalElement = document.getElementById('modalProduct');
-                    const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
-                    document.getElementById('modalProductLabel').textContent = "Atualizar Produto";
+                    const modal = bootstrap.Modal.getOrCreateInstance($('#modalProduct')[0]);
+                    $('#modalProductLabel').text("Atualizar Produto");
                     modal.show();
                 })
                 .catch(error => {
-                    console.error("Erro ao abrir modal do produto:", error);
+                    console.error("Error opening product modal:", error);
                     alert("Não foi possível carregar os dados do produto.");
                 });
-
         }
 
         function openDeleteProductModal(idProduct, nameProduct) {
-            $("#deleteProductId").val(idProduct);
-            $("#deleteProductMessage").text(`Deseja realmente excluir o produto "${nameProduct}"?`);
-            const modal = new bootstrap.Modal(document.getElementById('modalDeleteProduct'));
+            $('#deleteProductId').val(idProduct);
+            $('#deleteProductMessage').text(`Deseja realmente excluir o produto "${nameProduct}"?`);
+            const modal = new bootstrap.Modal($('#modalDeleteProduct')[0]);
             modal.show();
         }
+
+        function openProductModalInsert() {
+            const modal = bootstrap.Modal.getOrCreateInstance($('#modalProduct')[0]);
+            $('#formProduct')[0].reset();
+            $('#modalProductLabel').text("Adicionar Novo Produto");
+            $('#productId').val("");
+            modal.show();
+        }
+
+        //#endregion
+
+        //#region Delete Product
 
         $("#confirmDeleteProduct").on("click", function () {
             const productId = $("#deleteProductId").val();
@@ -194,8 +237,8 @@
             api.delete(`/product/${productId}`)
                 .then(response => {
                     alert(response.data.message || "Produto deletado com sucesso!");
-                    bootstrap.Modal.getInstance(document.getElementById('modalDeleteProduct')).hide();
-                    document.getElementById('searchButton').click();
+                    bootstrap.Modal.getInstance($('#modalDeleteProduct')[0]).hide();
+                    $('#searchButton').click();
                 })
                 .catch(error => {
                     console.error("Erro ao deletar produto:", error);
@@ -203,6 +246,8 @@
 
                 });
         });
+
+        //#endregion
 
         //#region Submit Product Form
 
@@ -215,11 +260,15 @@
                 e.stopPropagation();
                 $(form).addClass("was-validated");
                 return;
-                    }
+            }
+
+            let raw = $('#productPrice').cleanVal();
+            let price = parseFloat(raw) / 100;
+
             const product = {
                 name: $("#productName").val().trim(),
                 description: $("#productDescription").val().trim(),
-                price: parseFloat($("#productPrice").val()),
+                price: price,
                 stockQuantity: parseInt($("#productStockQuantity").val())
             };
 
@@ -230,8 +279,8 @@
                 api.put(`/product/${productId}`, product)
                     .then(response => {
                         alert(response.data.message || "Produto atualizado com sucesso!");
-                        bootstrap.Modal.getInstance(document.getElementById('modalProduct')).hide();
-                        document.getElementById('searchButton').click();
+                        bootstrap.Modal.getInstance($('#modalProduct')[0]).hide();
+                        $('#searchButton').click();
                     })
                     .catch(error => {
                         handleApiError(error);
@@ -241,8 +290,8 @@
                 api.post("/product", product)
                     .then(response => {
                         alert(response.data.message || "Produto cadastrado com sucesso!");
-                        bootstrap.Modal.getInstance(document.getElementById('modalProduct')).hide();
-                        document.getElementById('searchButton').click();
+                        bootstrap.Modal.getInstance($('#modalProduct')[0]).hide();
+                        $('#searchButton').click();
                     })
                     .catch(error => {
                         console.error("Erro ao cadastrar produto:", error);
@@ -253,42 +302,59 @@
 
         //#endregion
 
-        $('#modalProduct').on('hidden.bs.modal', function () {
-            const form = $("#formProduct")[0];
+        //#region Reset Modal Form
 
+        $('#modalProduct').on('hidden.bs.modal', function () {
+            const form = $('#formProduct')[0];
             form.reset();
             form.classList.remove("was-validated");
-
-            // limpa mensagens de erro customizadas
-            $("#productName")[0].setCustomValidity("");
-            $("#productDescription")[0].setCustomValidity("");
-            $("#productPrice")[0].setCustomValidity("");
-            $("#productStockQuantity")[0].setCustomValidity("");
+            $('#productName')[0].setCustomValidity("");
+            $('#productDescription')[0].setCustomValidity("");
+            $('#productPrice')[0].setCustomValidity("");
+            $('#productStockQuantity')[0].setCustomValidity("");
         });
 
-        //#region Open Add Product Modal
+        //#endregion
 
-        function openProductModalInsert() {
-            const modalElement = document.getElementById('modalProduct');
-            const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+        //#region Inputs Masks and Validations
 
-            document.getElementById('formProduct').reset();
-            document.getElementById('modalProductLabel').textContent = "Adicionar Novo Produto";
-            document.getElementById('productId').value = "";
-            modal.show();
-        }
+        $('#productStockQuantity').on('input', function () {
+            if (this.value.length > 5) this.value = this.value.slice(0, 5);
+        });
+
+        $(document).ready(function () {
+            $('#productPrice').mask('#.##0,00', { reverse: true });
+
+            $('#productPrice').on('input', function () {
+                let raw = $(this).cleanVal();
+                let value = parseInt(raw, 10);
+                if (isNaN(value)) value = 0;
+                if (value > 100000000) {
+                    value = 100000000;
+                    $(this).val((value / 100).toLocaleString("pt-BR", { minimumFractionDigits: 2 }));
+                }
+            });
+        });
 
         //#endregion
 
         //#region DOM Events
 
-        document.getElementById('searchButton').addEventListener('click', fetchProducts);
-        document.addEventListener('DOMContentLoaded', fetchProducts);
-        document.getElementById('addProductButton').addEventListener('click', openProductModalInsert);
+        $('#searchButton').on('click', fetchProducts);
+
+        $(function () {
+            fetchProducts();
+        });
+
+
+        $('#addProductButton').on('click', openProductModalInsert);
 
         //#endregion
 
     </script>
+
+    <!-- #endregion -->
+
 </body>
 
 </html>

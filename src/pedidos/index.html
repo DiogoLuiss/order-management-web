@@ -217,8 +217,8 @@
 
                     api.get(`/order/${orderIdForStatus}/status`)
                         .then(res => {
-                            const currentStatus = res.data;
-                            select.val(currentStatus);
+                            const currentStatus = res.data;                            
+                            select.val(currentStatus.id);
                         })
                         .catch(err => console.error("Erro ao buscar status atual do pedido:", err));
 
