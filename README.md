@@ -81,3 +81,14 @@ Repositório back-end: <a href="https://github.com/DiogoLuiss/order-management-a
 <h2>Demonstração</h2>
 
 [Veja a demo do sistema](./assets/demo.mp4)
+
+<div class="project-gallery">
+  <img src="./assets/imgProject1.png" alt="Projeto 1" width="200">
+  <img src="./assets/imgProject2.png" alt="Projeto 2" width="200">
+  <img src="./assets/imgProject3.png" alt="Projeto 3" width="200">
+  <img src="./assets/imgProject4.png" alt="Projeto 4" width="200">
+  <img src="./assets/imgProject5.png" alt="Projeto 5" width="200">
+  <img src="./assets/imgProject6.png" alt="Projeto 6" width="200">
+  <img src="./assets/imgProject7.png" alt="Projeto 7" width="200">
+  <img src="./assets/imgProject8.png" alt="Projeto 8" width="200">
+</div>
