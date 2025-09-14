@@ -68,4 +68,7 @@ Clone o repositório:
   <img src="./assets/imgProject3.png" alt="Projeto 3" width="200">
   <img src="./assets/imgProject4.png" alt="Projeto 4" width="200">
   <img src="./assets/imgProject5.png" alt="Projeto 5" width="200">
+  <img src="./assets/imgProject6.png" alt="Projeto 6" width="200">
+  <img src="./assets/imgProject7.png" alt="Projeto 7" width="200">
+  <img src="./assets/imgProject8.png" alt="Projeto 8" width="200">
 </div>
