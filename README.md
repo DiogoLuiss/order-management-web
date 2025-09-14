@@ -17,12 +17,12 @@ Front-end do sistema de **Gerenciamento de Pedidos**, desenvolvido para pequenas
 
 ### 1. Gerenciamento de Clientes
 - CRUD completo: cadastro, edição, listagem e exclusão de clientes.  
-- Listagem com filtros dinâmicos por **Nome** e **Email**.  
+- Listagem com filtros por **Nome** e **Email**.  
 - Interface amigável e responsiva para dispositivos móveis e desktop.
 
 ### 2. Gerenciamento de Produtos
 - CRUD completo: cadastro, edição, listagem e exclusão de produtos.  
-- Listagem com filtro dinâmico por **Nome**.  
+- Listagem com filtro por **Nome**.  
 - Validação de campos (ex: preço e quantidade) antes de salvar.  
 
 ### 3. Registro e Gerenciamento de Pedidos
