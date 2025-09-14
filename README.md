@@ -1,58 +1,79 @@
-# Gerenciamento de Pedidos - Front-End
+<h1>Gerenciamento de Pedidos - Front-End</h1>
 
-Front-end do sistema de **Gerenciamento de Pedidos**, desenvolvido para pequenas lojas, com interface **limpa, responsiva e interativa**, permitindo gerenciar clientes, produtos e pedidos de forma prática.
+<p>Front-end do sistema de <strong>Gerenciamento de Pedidos</strong>, desenvolvido para pequenas lojas, com interface <strong>limpa, responsiva e interativa</strong>.<br>
+Permite gerenciar clientes, produtos e pedidos de forma prática e eficiente.</p>
 
----
+<hr>
 
-## 🛠 Tecnologias Utilizadas
+<h2>Tecnologias Utilizadas</h2>
+<ul>
+  <li><strong>HTML5</strong> – marcação da interface.</li>
+  <li><strong>CSS3</strong> – estilização e responsividade.</li>
+  <li><strong>JavaScript</strong> – lógica de interação e manipulação de dados.</li>
+  <li><strong>Bootstrap 5</strong> – componentes prontos e responsividade.</li>
+  <li><strong>jQuery</strong> – facilita manipulação da interface, eventos e atualização de conteúdo dinâmico.</li>
+</ul>
 
-- **HTML5** 
-- **CSS3**
-- **Javascript**
-- **Bootstrap 5** – responsividade e componentes prontos.  
-- **jQuery** – facilita a manipulação da interface, eventos e atualizações de conteúdo na página, permitindo implementar funcionalidades como filtros e atualizações do grid de forma mais prática e eficiente.
+<hr>
 
+<h2>Funcionalidades Principais</h2>
 
-## 🎯 Funcionalidades Principais
+<h3>1. Gerenciamento de Clientes</h3>
+<ul>
+  <li>CRUD completo: cadastro, edição, listagem e exclusão.</li>
+  <li>Listagem com filtros por <strong>Nome</strong> e <strong>Email</strong>.</li>
+  <li>Interface amigável e responsiva para dispositivos móveis e desktop.</li>
+</ul>
 
-### 1. Gerenciamento de Clientes
-- CRUD completo: cadastro, edição, listagem e exclusão de clientes.  
-- Listagem com filtros por **Nome** e **Email**.  
-- Interface amigável e responsiva para dispositivos móveis e desktop.
+<h3>2. Gerenciamento de Produtos</h3>
+<ul>
+  <li>CRUD completo: cadastro, edição, listagem e exclusão.</li>
+  <li>Listagem com filtro por <strong>Nome</strong>.</li>
+  <li>Validação de campos (ex: preço e quantidade) antes de salvar.</li>
+</ul>
 
-### 2. Gerenciamento de Produtos
-- CRUD completo: cadastro, edição, listagem e exclusão de produtos.  
-- Listagem com filtro por **Nome**.  
-- Validação de campos (ex: preço e quantidade) antes de salvar.  
+<h3>3. Registro e Gerenciamento de Pedidos</h3>
+<ul>
+  <li>Seleção de cliente existente ao criar um pedido.</li>
+  <li>Adição de múltiplos produtos ao pedido de forma dinâmica.</li>
+  <li>Cálculo automático do <strong>valor total</strong> do pedido.</li>
+  <li>Validação de <strong>estoque disponível</strong> antes de adicionar produtos.</li>
+  <li>Visualização detalhada de cada pedido, incluindo itens e preços unitários.</li>
+  <li>Alteração do <strong>status do pedido</strong> (ex: Novo → Processando → Finalizado).</li>
+  <li>Filtros de pedidos por <strong>cliente</strong> ou <strong>status</strong>.</li>
+</ul>
 
-### 3. Registro e Gerenciamento de Pedidos
-- Seleção de cliente existente ao criar um pedido.  
-- Adição de múltiplos produtos ao pedido de forma dinâmica.  
-- Cálculo automático do **valor total** do pedido.  
-- Validação de **estoque disponível** antes de adicionar produtos.  
-- Visualização detalhada de cada pedido, incluindo itens e preços unitários.  
-- Alteração do **status do pedido** (ex: Novo → Processando → Finalizado).  
-- Filtros de pedidos por **cliente** ou **status**.  
+<h3>4. Experiência do Usuário</h3>
+<ul>
+  <li>Interações dinâmicas usando <strong>jQuery</strong>.</li>
+  <li>Interface limpa e intuitiva com <strong>Bootstrap</strong>, garantindo responsividade.</li>
+  <li>Feedback visual em ações importantes (ex: adicionar produto, atualizar pedido).</li>
+</ul>
 
-### 4. Experiência do Usuário
-- Interações dinâmicas usando **jQuery**.  
-- Interface limpa e intuitiva com **Bootstrap**, garantindo responsividade.  
-- Feedback visual em ações importantes (ex: adicionar produto, atualizar pedido).  
+<hr>
 
-## 🔗 Integração com Back-End
+<h2>Integração com Back-End</h2>
+<p>Este front-end foi desenvolvido para se conectar com o back-end do projeto de <strong>Gerenciamento de Pedidos</strong>.<br>
+Repositório back-end: <a href="https://github.com/DiogoLuiss/order-management-api">Order Management API</a></p>
 
-Este front-end foi desenvolvido para se conectar com o back-end do projeto de **Gerenciamento de Pedidos**, disponível em:
+<p>Todas as operações de CRUD para clientes, produtos e pedidos são feitas via chamadas <strong>HTTP usando Axios</strong>.</p>
 
-[Order Management API](https://github.com/DiogoLuiss/order-management-api)
+<hr>
 
-Todas as operações de CRUD para clientes, produtos e pedidos são feitas via chamadas **HTTP usando Axios**.
-
-## 🚀 Como Executar
-
-Clone o repositório:
+<h2>Como Executar</h2>
+<ol>
+  <li>
+    Clone o repositório:<br>
     <pre><code>git clone https://github.com/DiogoLuiss/order-management-web.git</code></pre>
-    
-  <li>Configure a URL da API no arquivo <code>src/js/service/api.js</code>, pois é o único lugar onde precisa ser alterada.</li>
-  <li>Execute o projeto utilizando o comando: <code>npm run start </code>. Ou execute dentro do caminho src: <code>npx live-server</code></li>
-
-
+  </li>
+  <li>
+    Configure a URL da API no arquivo <code>src/js/services/api.js</code>, pois é o único lugar que precisa ser alterado.
+  </li>
+  <li>
+    Execute o projeto:
+    <ul>
+      <li>Usando npm: <code>npm run start</code></li>
+      <li>Ou diretamente com live-server: <code>npx live-server</code></li>
+    </ul>
+  </li>
+</ol>
