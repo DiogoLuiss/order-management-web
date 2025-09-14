@@ -80,7 +80,4 @@ Repositório back-end: <a href="https://github.com/DiogoLuiss/order-management-a
 
 <h2>Demonstração</h2>
 
-<video width="600" controls autoplay loop muted>
-  <source src="./assets/demo.mp4" type="video/mp4">
-  Seu navegador não suporta este vídeo.
-</video>
+[Veja a demo do sistema](./assets/demo.mp4)
