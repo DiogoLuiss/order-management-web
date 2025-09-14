@@ -56,3 +56,16 @@ Clone o repositório:
   <li>Execute o projeto utilizando o comando: <code>npm run start </code>. Ou execute dentro do caminho src: <code>npx live-server</code></li>
 
 
+<!-- Link para o vídeo -->
+<p>
+  <a href="./assets/demo.mp4" target="_blank">Veja a demo do sistema</a>
+</p>
+
+<!-- Galeria de imagens do projeto -->
+<div class="project-gallery">
+  <img src="./assets/imgProject1.png" alt="Projeto 1" width="200">
+  <img src="./assets/imgProject2.png" alt="Projeto 2" width="200">
+  <img src="./assets/imgProject3.png" alt="Projeto 3" width="200">
+  <img src="./assets/imgProject4.png" alt="Projeto 4" width="200">
+  <img src="./assets/imgProject5.png" alt="Projeto 5" width="200">
+</div>
