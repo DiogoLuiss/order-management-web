@@ -6,23 +6,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Sistema de Gerenciamento de Pedidos</title>
 
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
 <body>
+    <!-- #region Main App -->
 
     <div id="navbar"></div>
     <div id="app" class="container mt-5">
-        <!-- Conteúdo do Dashboard -->
         <div class="container mt-5">
             <h1 class="text-center mb-4">Bem-vindo ao Sistema de Gerenciamento de Pedidos!</h1>
             <p class="text-center mb-5">Use o menu acima para navegar entre Clientes, Produtos e Pedidos.</p>
 
-            <!-- Cards de Resumo -->
             <div class="row text-center">
                 <div class="col-md-4 mb-3">
-                    <div class="card bg-info text-white">
+                    <div class="card bg-secondary text-white">
                         <div class="card-body">
                             <h5 class="card-title">Total de Clientes</h5>
                             <p class="card-text" id="totalClients">0</p>
@@ -38,7 +36,7 @@
                     </div>
                 </div>
                 <div class="col-md-4 mb-3">
-                    <div class="card bg-warning text-dark">
+                    <div class="card bg-primary text-white">
                         <div class="card-body">
                             <h5 class="card-title">Total de Pedidos</h5>
                             <p class="card-text" id="totalOrders">0</p>
@@ -48,14 +46,40 @@
             </div>
         </div>
     </div>
-    <!-- jQuery -->
+
+    <!-- #endregion Main App -->
+
+    <!-- #region Scripts -->
+
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Custom JS -->
     <script src="./js/components/navbar.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="./js/components/toast.js"></script>
+    <script src="./js/services/api.js"></script>
+
+    <script>
+        $(document).ready(function () {
+
+            function fetchDashboardCounts() {
+
+                api.get(`/statistics/counts`)
+                    .then(response => {
+                        $('#totalClients').text(response.data.countClients);
+                        $('#totalProducts').text(response.data.countProducts);
+                        $('#totalOrders').text(response.data.countOrders);
+
+                    })
+                    .catch(handleApiError);
+            }
+
+            fetchDashboardCounts();
+        });
+    </script>
+
+    <!-- #endregion Scripts -->
+
 </body>
 
 </html>
