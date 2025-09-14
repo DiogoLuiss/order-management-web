@@ -240,8 +240,10 @@
             let existingProduct = cart.find(p => p.id === id);
             if (existingProduct) {
                 existingProduct.qty++;
+                showToast(`A quantidade de "${name}" no carrinho foi aumentada.`, "success");
             } else {
                 cart.push({ id, name, price, qty: 1 });
+                showToast(`O produto "${name}" foi adicionado ao carrinho.`, "success");
             }
 
             updateCart();
