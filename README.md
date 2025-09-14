@@ -35,7 +35,7 @@ Front-end do sistema de **Gerenciamento de Pedidos**, desenvolvido para pequenas
 - Filtros de pedidos por **cliente** ou **status**.  
 
 ### 4. Experiência do Usuário
-- Interações dinâmicas usando **jQuery**, sem necessidade de recarregar a página.  
+- Interações dinâmicas usando **jQuery**.  
 - Interface limpa e intuitiva com **Bootstrap**, garantindo responsividade.  
 - Feedback visual em ações importantes (ex: adicionar produto, atualizar pedido).  
 
@@ -50,9 +50,9 @@ Todas as operações de CRUD para clientes, produtos e pedidos são feitas via c
 ## 🚀 Como Executar
 
 Clone o repositório:
-    <pre><code>git clone https://github.com/DiogoLuiss/order-management-frontend.git</code></pre>
+    <pre><code>git clone https://github.com/DiogoLuiss/order-management-web.git</code></pre>
     
   <li>Configure a URL da API no arquivo <code>src/js/service/api.js</code>, pois é o único lugar onde precisa ser alterada.</li>
-  <li>Abra o arquivo <strong>index.html</strong> no navegador.</li>
+  <li>Execute o projeto utilizando o comando: <code>npm run start </code>. Ou execute dentro do caminho src: <code>npx live-server</code></li>
 
 
