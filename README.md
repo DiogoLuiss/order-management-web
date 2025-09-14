@@ -77,3 +77,5 @@ Repositório back-end: <a href="https://github.com/DiogoLuiss/order-management-a
     </ul>
   </li>
 </ol>
+
+[Veja a demo do sistema](./assets/demo.mp4)
