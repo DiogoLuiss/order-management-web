@@ -73,7 +73,7 @@ Repositório back-end: <a href="https://github.com/DiogoLuiss/order-management-a
     Execute o projeto:
     <ul>
       <li>Usando npm: <code>npm run start</code></li>
-      <li>Ou diretamente com live-server: <code>npx live-server</code></li>
+      <li>Ou diretamente com live-server dentro da pasta src: <code>npx live-server</code></li>
     </ul>
   </li>
 </ol>
